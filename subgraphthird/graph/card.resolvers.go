@@ -25,7 +25,16 @@ func (r *queryResolver) GetCard(ctx context.Context, cardReferenceID string) (*m
 
 // GetCards is the resolver for the getCards field.
 func (r *queryResolver) GetCards(ctx context.Context, cardReferenceID string) ([]*model.Card, error) {
-	panic(fmt.Errorf("not implemented: GetCards - getCards"))
+	var result []*model.Card
+	for _, card := range data.Cards() {
+		if card.CardReferenceID == cardReferenceID {
+			result = append(result, card)
+		}
+	}
+	if len(result) == 0 {
+		return nil, fmt.Errorf("no cards found with ID %s", cardReferenceID)
+	}
+	return result, nil
 }
 
 // Query returns QueryResolver implementation.

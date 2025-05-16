@@ -6,23 +6,28 @@ package graph
 
 import (
 	"context"
-	"fmt"
+	"subgraphfirst/graph/data"
 	"subgraphfirst/graph/model"
 )
 
 // GetCustomers is the resolver for the getCustomers field.
 func (r *queryResolver) GetCustomers(ctx context.Context) ([]*model.Customer, error) {
-	panic(fmt.Errorf("not implemented: GetCustomers - getCustomers"))
+	return data.Customers(), nil
 }
 
 // Customers is the resolver for the customers field.
 func (r *queryResolver) Customers(ctx context.Context) ([]*model.Customer, error) {
-	panic(fmt.Errorf("not implemented: Customers - customers"))
+	return data.Customers(), nil
 }
 
 // GetCustomer is the resolver for the getCustomer field.
 func (r *queryResolver) GetCustomer(ctx context.Context, customerReferenceID string) (*model.Customer, error) {
-	panic(fmt.Errorf("not implemented: GetCustomer - getCustomer"))
+	for _, customer := range data.Customers() {
+		if customer.CustomerReferenceID == customerReferenceID {
+			return customer, nil
+		}
+	}
+	return nil, nil
 }
 
 // Query returns QueryResolver implementation.

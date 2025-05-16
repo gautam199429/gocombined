@@ -1,0 +1,127 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.3", for: EXECUTION)
+  @link(url: "https://specs.apollo.dev/policy/v0.1", import: ["@policy"], for: SECURITY)
+{
+  query: Query
+}
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+directive @policy(policies: [[policy__Policy!]!]!) on FIELD_DEFINITION | OBJECT | INTERFACE | SCALAR | ENUM
+
+type Account
+  @join__type(graph: ACCOUNTS, key: "accountReferenceId")
+  @join__type(graph: CUSTOMER, key: "accountReferenceId")
+{
+  accountReferenceId: String!
+  status: AccountStatus @join__field(graph: ACCOUNTS)
+  type: String @join__field(graph: ACCOUNTS)
+  balance: Float @join__field(graph: ACCOUNTS)
+  cards: [Card] @join__field(graph: ACCOUNTS) @policy(policies: [["{ \"key\": \"Account.cards\", \"node\": { \"entitlementIdentifier\": \"accountReferenceId\" } }"]])
+  transactions: [Transaction] @join__field(graph: ACCOUNTS)
+}
+
+enum AccountStatus
+  @join__type(graph: ACCOUNTS)
+{
+  OPEN @join__enumValue(graph: ACCOUNTS)
+  CLOSED @join__enumValue(graph: ACCOUNTS)
+  FRAUD @join__enumValue(graph: ACCOUNTS)
+  DORMANT @join__enumValue(graph: ACCOUNTS)
+}
+
+type AvailableCreditAmount
+  @join__type(graph: ACCOUNTS)
+  @join__type(graph: CARDS)
+{
+  spendingCreditAmount: Float
+  cashCreditAmount: Float
+}
+
+type Card
+  @join__type(graph: ACCOUNTS, key: "cardReferenceId")
+  @join__type(graph: CARDS, key: "cardReferenceId")
+{
+  cardReferenceId: String!
+  status: String
+  type: String @join__field(graph: CARDS)
+  expiryDate: String @join__field(graph: CARDS)
+  cardNumber: String @join__field(graph: CARDS)
+  transactions: [Transaction] @join__field(graph: CARDS)
+}
+
+type Customer
+  @join__type(graph: CUSTOMER, key: "customerReferenceId")
+{
+  customerReferenceId: String!
+  name: String!
+  last4ssn: String!
+  age: Int!
+  address: String!
+  email: String!
+  accounts: [Account]
+}
+
+scalar join__FieldSet
+
+enum join__Graph {
+  ACCOUNTS @join__graph(name: "accounts", url: "http://localhost:4002/query")
+  CARDS @join__graph(name: "cards", url: "http://localhost:4003/query")
+  CUSTOMER @join__graph(name: "customer", url: "http://localhost:4001/query")
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+scalar policy__Policy
+
+type Query
+  @join__type(graph: ACCOUNTS)
+  @join__type(graph: CARDS)
+  @join__type(graph: CUSTOMER)
+{
+  getAccount(accountReferenceId: String!): Account @join__field(graph: ACCOUNTS) @policy(policies: [["{ \"key\": \"Query.account\", \"arguments\": { \"entitlementIdentifier\": \"accountReferenceId\" }, \"node\": { \"entitlementIdentifier\": \"accountReferenceId\" } }"]])
+  getAccounts(customerReferenceId: String!): [Account] @join__field(graph: ACCOUNTS) @policy(policies: [["{ \"key\": \"Query.accounts\", \"arguments\": { \"entitlementIdentifier\": \"customerReferenceId\" }, \"node\": { \"entitlementIdentifier\": \"accountReferenceId\" } }"]])
+  getCard(cardReferenceId: String!): Card @join__field(graph: CARDS)
+  getCards(cardReferenceId: String!): [Card] @join__field(graph: CARDS) @policy(policies: [["{ \"key\": \"Query.getCards\", \"arguments\": { \"entitlementIdentifier\": \"cardReferenceId\" }, \"node\": { \"entitlementIdentifier\": \"cardReferenceId\" } }"]])
+  getCustomers: [Customer] @join__field(graph: CUSTOMER)
+  customers: [Customer] @join__field(graph: CUSTOMER)
+  getCustomer(customerReferenceId: String!): Customer @join__field(graph: CUSTOMER) @policy(policies: [["{ \"key\": \"Query.customerById\", \"arguments\": { \"entitlementIdentifier\": \"customerReferenceId\" }, \"node\": { \"entitlementIdentifier\": \"customerReferenceId\" } }"]])
+}
+
+type Transaction
+  @join__type(graph: ACCOUNTS, key: "transactionId")
+  @join__type(graph: CARDS, key: "transactionId")
+  @join__type(graph: CUSTOMER, key: "transactionId")
+{
+  transactionId: String!
+  amount: Float @join__field(graph: ACCOUNTS) @join__field(graph: CARDS)
+  currency: String @join__field(graph: ACCOUNTS) @join__field(graph: CARDS)
+  status: String @join__field(graph: ACCOUNTS) @join__field(graph: CARDS)
+  transactionDate: String @join__field(graph: ACCOUNTS) @join__field(graph: CARDS)
+  availableCreditAmount: AvailableCreditAmount @join__field(graph: ACCOUNTS) @join__field(graph: CARDS)
+}

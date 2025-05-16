@@ -7,12 +7,20 @@ package graph
 import (
 	"context"
 	"fmt"
+	"subgraphsecond/graph/data"
 	"subgraphsecond/graph/model"
 )
 
 // FindAccountByAccountReferenceID is the resolver for the findAccountByAccountReferenceID field.
 func (r *entityResolver) FindAccountByAccountReferenceID(ctx context.Context, accountReferenceID string) (*model.Account, error) {
-	panic(fmt.Errorf("not implemented: FindAccountByAccountReferenceID - findAccountByAccountReferenceID"))
+	for _, account := range data.Accounts() {
+		// Check if the accountReferenceID matches
+		if account.AccountReferenceID == accountReferenceID {
+			return account, nil
+		}
+	}
+	// Return an error if the account is not found
+	return nil, fmt.Errorf("account with ID %s not found", accountReferenceID)
 }
 
 // FindCardByCardReferenceID is the resolver for the findCardByCardReferenceID field.

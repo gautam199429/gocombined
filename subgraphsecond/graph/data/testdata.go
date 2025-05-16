@@ -78,17 +78,20 @@ func Accounts() []*model.Account {
 var cardsRef1 = []*model.Card{
 	{
 		CardReferenceID: "CARD001",
+		Status:          ptrString("Active"),
 	},
 }
 
 var cardsRef2 = []*model.Card{
 	{
 		CardReferenceID: "CARD002",
+		Status:          ptrString("Inactive"),
 	},
 }
 
 var cardsRef3 = []*model.Card{
 	{
 		CardReferenceID: "CARD003",
+		Status:          ptrString("Inactive"),
 	},
 }

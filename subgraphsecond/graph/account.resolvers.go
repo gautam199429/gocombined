@@ -6,18 +6,23 @@ package graph
 
 import (
 	"context"
-	"fmt"
+	"subgraphsecond/graph/data"
 	"subgraphsecond/graph/model"
 )
 
 // GetAccount is the resolver for the getAccount field.
 func (r *queryResolver) GetAccount(ctx context.Context, accountReferenceID string) (*model.Account, error) {
-	panic(fmt.Errorf("not implemented: GetAccount - getAccount"))
+	for _, account := range data.Accounts() {
+		if account.AccountReferenceID == accountReferenceID {
+			return account, nil
+		}
+	}
+	return nil, nil
 }
 
 // GetAccounts is the resolver for the getAccounts field.
 func (r *queryResolver) GetAccounts(ctx context.Context, customerReferenceID string) ([]*model.Account, error) {
-	panic(fmt.Errorf("not implemented: GetAccounts - getAccounts"))
+	return data.Accounts(), nil
 }
 
 // Query returns QueryResolver implementation.
