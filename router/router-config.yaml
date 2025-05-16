@@ -1,0 +1,42 @@
+supergraph:
+  # The socket address and port to listen on
+  listen: 127.0.0.1:4000
+  introspection: true
+
+health_check:
+  listen: 127.0.0.1:4000
+
+cors:
+  allow_any_origin: true
+
+authorization:
+  directives:
+    enabled: true
+
+coprocessor:
+  url: http://localhost:8085/entitlements # Required. Replace with the URL of your coprocessor's HTTP endpoint.
+  supergraph:
+    request:
+      headers: true
+      context: all
+      body: true
+      condition:
+        exists:
+          request_context: "apollo::authorization::required_policies"
+
+  router:
+    response:
+      headers: true
+      body: true
+      context: all
+      condition:
+        exists:
+          response_context: "apollo::authorization::required_policies"      
+
+include_subgraph_errors:
+  all: true
+
+telemetry:
+  instrumentation:
+    spans:
+      mode: spec_compliant

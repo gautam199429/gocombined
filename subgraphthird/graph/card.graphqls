@@ -1,0 +1,36 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.6"
+    import: ["@key","@policy","@composeDirective","@shareable"]
+  )
+
+type Query {    
+   getCard(cardReferenceId: String!): Card @policy(policies:
+    [["{ \"key\": \"Query.getCard\", \"arguments\": { \"entitlementIdentifier\": \"cardReferenceId\" }, \"node\": { \"entitlementIdentifier\": \"cardReferenceId\" } }"]]
+  )
+  getCards(cardReferenceId: String!): [Card] @policy(policies:
+    [["{ \"key\": \"Query.getCards\", \"arguments\": { \"entitlementIdentifier\": \"cardReferenceId\" }, \"node\": { \"entitlementIdentifier\": \"cardReferenceId\" } }"]]
+  )
+}
+type Card @key(fields:"cardReferenceId") {
+    cardReferenceId: String!
+    status: String @shareable
+    type: String
+    expiryDate: String
+    cardNumber: String 
+    transactions: [Transaction]
+}
+
+type Transaction @key(fields:"transactionId") {
+    transactionId: String!
+    amount: Float @shareable
+    currency: String @shareable
+    status: String @shareable
+    transactionDate: String @shareable
+    availableCreditAmount: AvailableCreditAmount @shareable
+}
+
+type AvailableCreditAmount {
+    spendingCreditAmount: Float @shareable
+    cashCreditAmount: Float @shareable
+}

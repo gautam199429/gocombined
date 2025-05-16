@@ -1,0 +1,47 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.6"
+    import: ["@key","@policy","@composeDirective","@shareable"]
+  )
+
+type Query {    
+   getAccount(accountReferenceId: String!): Account @policy(policies:
+    [["{ \"key\": \"Query.account\", \"arguments\": { \"entitlementIdentifier\": \"accountReferenceId\" }, \"node\": { \"entitlementIdentifier\": \"accountReferenceId\" } }"]]
+  )
+  getAccounts(customerReferenceId: String!): [Account] @policy(policies:
+    [["{ \"key\": \"Query.accounts\", \"arguments\": { \"entitlementIdentifier\": \"customerReferenceId\" }, \"node\": { \"entitlementIdentifier\": \"accountReferenceId\" } }"]]
+  )
+}
+type Account @key(fields:"accountReferenceId") {
+    accountReferenceId: String!
+    status: AccountStatus
+    type: String
+    balance: Float     
+    cards: [Card] @policy(policies:[["{ \"key\": \"Account.cards\", \"node\": { \"entitlementIdentifier\": \"accountReferenceId\" } }"]])
+    transactions: [Transaction]
+}
+type Card @key(fields:"cardReferenceId") {
+    cardReferenceId: String!
+    status: String @shareable
+}
+
+type Transaction @key(fields:"transactionId") {
+    transactionId: String!
+    amount: Float @shareable
+    currency: String @shareable
+    status: String @shareable
+    transactionDate: String @shareable
+    availableCreditAmount: AvailableCreditAmount @shareable
+}
+
+type AvailableCreditAmount {
+    spendingCreditAmount: Float @shareable
+    cashCreditAmount: Float @shareable
+}
+
+enum AccountStatus {
+    OPEN
+    CLOSED
+    FRAUD
+    DORMANT
+}
