@@ -1,4 +1,4 @@
-module github.com/apollographql/coprocessor
+module coprocessor
 
 go 1.22
 
@@ -10,7 +10,10 @@ require (
 	github.com/rs/zerolog v1.31.0
 )
 
-require github.com/agnivade/levenshtein v1.2.1 // indirect
+require (
+	github.com/agnivade/levenshtein v1.2.1 // indirect
+	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
+)
 
 require (
 	github.com/mattn/go-colorable v0.1.13 // indirect

@@ -1,12 +1,11 @@
 package coprocessor
 
 import (
+	"coprocessor/internal/model"
+	utilities "coprocessor/utility"
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"strconv"
-
-	"github.com/apollographql/coprocessor/internal/model"
 )
 
 type RouterStageBody struct {
@@ -251,32 +250,10 @@ func handleRouterResponse(httpRequestBody *[]byte) (*model.RouterResponsePayload
 
 	fmt.Println("Router Response String Body:", bodyString)
 
-	var parsedBody map[string]any
-
-	if err := json.Unmarshal([]byte(bodyString), &parsedBody); err != nil {
-		return nil, fmt.Errorf("error unmarshaling response body: %w", err)
+	parsedBody, error := utilities.ParseGraphQLQueryCopy(bodyString)
+	if error != nil {
+		return nil, fmt.Errorf("error marshaling modified response body: %w", err)
 	}
-
-	fmt.Println("Parsed Body:", parsedBody)
-	fmt.Print("Parsed Body Type:", reflect.TypeOf(parsedBody["data"]))
-	data, ok := parsedBody["data"].(map[string]any)
-	if ok {
-		account, ok := data["account"].([]interface{})
-		if ok {
-			for _, item := range account {
-				if itemMap, ok := item.(map[string]interface{}); ok {
-					if availableSpendingCreditAmount, ok := itemMap["availableSpendingCreditAmount"]; ok {
-						if availableSpendingCreditAmount == 2500.75 {
-							delete(itemMap, "availableSpendingCreditAmount")
-						}
-					}
-				}
-			}
-		} else {
-			return nil, fmt.Errorf("error asserting parsedBody[data] as map[string]interface{}")
-		}
-	}
-
 	marshaledParsedBody, err := json.Marshal(parsedBody)
 	if err != nil {
 		return nil, fmt.Errorf("error marshaling modified response body: %w", err)

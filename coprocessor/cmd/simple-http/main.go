@@ -1,13 +1,14 @@
 package main
 
 import (
+	coprocessor "coprocessor/internal"
+	utility "coprocessor/utility"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-
-	coprocessor "github.com/apollographql/coprocessor/internal"
+	"time"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 	if err != nil {
 		port = 8085
 	}
-
+	utility.CacheInit(24*time.Hour, 24*time.Hour)
 	http.HandleFunc("/entitlements", coprocessor.RequestHandler)
 	log.Printf("Starting on :%v", port)
 	http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
