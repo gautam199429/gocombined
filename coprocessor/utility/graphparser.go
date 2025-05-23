@@ -1,7 +1,6 @@
 package utilities
 
 import (
-	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -23,17 +22,16 @@ func ParseSchema() (FieldsMap, EntitlementIdMap, error) {
 			return fields, nil, nil
 		}
 	}
-	schemaFilePath := "../schema.graphql"
-	body, err := os.ReadFile(schemaFilePath)
+	body, err := DownloadSchemaAsString()
 	if err != nil {
 		return nil, nil, err
 	}
-	doc, err := gqlparser.LoadSchema(&ast.Source{Input: string(body)})
+	doc, err := gqlparser.LoadSchema(&ast.Source{Input: body})
 	if err != nil {
 		return nil, nil, err
 	}
 	parsedSchema = doc
-	entitlementIdMap, err := ExtractEntitlementIdentifiers(string(body))
+	entitlementIdMap, err := ExtractEntitlementIdentifiers(body)
 	if err != nil {
 		return nil, nil, err
 	}

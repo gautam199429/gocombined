@@ -17,6 +17,7 @@ func main() {
 		port = 8085
 	}
 	utility.CacheInit(24*time.Hour, 24*time.Hour)
+	utility.StartSchemaUpdater()
 	http.HandleFunc("/entitlements", coprocessor.RequestHandler)
 	log.Printf("Starting on :%v", port)
 	http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
