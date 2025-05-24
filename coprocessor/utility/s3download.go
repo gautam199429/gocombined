@@ -7,13 +7,15 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"log"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-var schema string
+var (
+	schema        string
+	schemaChanged bool
+)
 
 func DownloadSchemaAsString() (string, error) {
 	minioClient, err := minio.New("https://objectstore.e2enetworks.net", &minio.Options{
@@ -48,11 +50,34 @@ func StartSchemaUpdater() {
 		for range ticker.C {
 			newSchema, err := DownloadSchemaAsString()
 			if err != nil {
-				log.Println("Error updating schema:", err)
+				fmt.Println("Error updating schema:", err)
 				continue
 			}
-			schema = newSchema // <-- fix: assign to the global variable
-			log.Println("Schema updated at", time.Now())
+			oldHash := HashSHA256(schema)
+			newHash := HashSHA256(newSchema)
+			if oldHash == newHash {
+				fmt.Println("Schema has not changed.")
+				schemaChanged = false
+				continue
+			} else {
+				fmt.Println("Schema has changed.")
+				schema = newSchema
+				schemaChanged = true
+				fmt.Println("Schema updated at", time.Now())
+			}
 		}
 	}()
+}
+
+func GetSchema() (string, bool, error) {
+	if schema == "" {
+		newSchema, err := DownloadSchemaAsString()
+		if err != nil {
+			return "", false, fmt.Errorf("failed to read object content: %w", err)
+		}
+		schema = newSchema
+		return schema, true, nil
+	} else {
+		return schema, schemaChanged, nil
+	}
 }

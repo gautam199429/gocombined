@@ -17,14 +17,17 @@ var parsedSchema *ast.Schema
 
 func ParseSchema() (FieldsMap, EntitlementIdMap, error) {
 	const cacheKey = "fieldsMap"
-	if cached, found := GetFromCache(cacheKey); found {
-		if fields, ok := cached.(FieldsMap); ok {
-			return fields, nil, nil
-		}
-	}
-	body, err := DownloadSchemaAsString()
+	body, changeStatus, err := GetSchema()
 	if err != nil {
 		return nil, nil, err
+	}
+	if !changeStatus {
+		if cached, found := GetFromCache(cacheKey); found {
+			if fields, ok := cached.(FieldsMap); ok {
+				return fields, nil, nil
+
+			}
+		}
 	}
 	doc, err := gqlparser.LoadSchema(&ast.Source{Input: body})
 	if err != nil {
