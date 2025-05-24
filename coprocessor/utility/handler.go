@@ -21,7 +21,7 @@ func ParseGraphQLQueryCopy(bodyString string) (JSONMap, error) {
 		return nil, fmt.Errorf("Error Getting Policies schema: " + err.Error())
 	}
 	if len(policiesList) == 0 {
-		return nil, fmt.Errorf("No valid policies provided")
+		return nil, fmt.Errorf("no valid policies provided")
 	}
 	var data JSONMap
 	err = json.Unmarshal([]byte(bodyString), &data)
@@ -33,7 +33,7 @@ func ParseGraphQLQueryCopy(bodyString string) (JSONMap, error) {
 	for _, policy := range policiesList {
 		parts := splitPoliciesAndRemoveSpace(policy["key"].(string), ".")
 		if len(parts) != 2 {
-			return nil, fmt.Errorf("Invalid policy format")
+			return nil, fmt.Errorf("invalid policy format")
 		}
 		typename := parts[0]
 		field := parts[1]
