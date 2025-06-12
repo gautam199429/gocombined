@@ -232,7 +232,7 @@ func handleRouterRequest(httpRequestBody *[]byte) (*RouterRequest, error) {
 	return cr, nil
 }
 
-func handleRouterResponse(httpRequestBody *[]byte) (*model.RouterResponsePayload, error) {
+func handleRouterResponse(httpRequestBody *[]byte) (*model.CommonProperties, error) {
 	cr, err := NewRouterResponse(httpRequestBody)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling httpRequestBody: %w", err)
@@ -244,9 +244,6 @@ func handleRouterResponse(httpRequestBody *[]byte) (*model.RouterResponsePayload
 		return nil, fmt.Errorf("error marshaling request body: %w", err)
 	}
 	var bodyString string
-	if err := json.Unmarshal(cr.Body, &bodyString); err != nil {
-		return nil, fmt.Errorf("error unmarshaling response body: %w", err)
-	}
 
 	fmt.Println("Router Response String Body:", bodyString)
 
@@ -273,7 +270,7 @@ func handleRouterResponse(httpRequestBody *[]byte) (*model.RouterResponsePayload
 	return cr, nil
 }
 
-func handleSupergraphRequest(httpRequestBody *[]byte) (*model.CoprocessorPayload, error) {
+func handleSupergraphRequest(httpRequestBody *[]byte) (*model.CommonProperties, error) {
 	cr, err := NewSuperGraph(httpRequestBody)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling httpRequestBody: %w", err)
@@ -305,9 +302,9 @@ func NewRouterRequest(httpRequestBody *[]byte) (*RouterRequest, error) {
 	return cr, nil
 }
 
-func NewSuperGraph(httpRequestBody *[]byte) (*model.CoprocessorPayload, error) {
+func NewSuperGraph(httpRequestBody *[]byte) (*model.CommonProperties, error) {
 	var err error
-	var cr *model.CoprocessorPayload
+	var cr *model.CommonProperties
 	err = json.Unmarshal(*httpRequestBody, &cr)
 	if err != nil {
 		fmt.Println(err)
@@ -316,9 +313,9 @@ func NewSuperGraph(httpRequestBody *[]byte) (*model.CoprocessorPayload, error) {
 	return cr, nil
 }
 
-func NewRouterResponse(httpRequestBody *[]byte) (*model.RouterResponsePayload, error) {
+func NewRouterResponse(httpRequestBody *[]byte) (*model.CommonProperties, error) {
 	var err error
-	var cr *model.RouterResponsePayload
+	var cr *model.CommonProperties
 	err = json.Unmarshal(*httpRequestBody, &cr)
 	if err != nil {
 		fmt.Println(err)

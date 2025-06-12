@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"net/http"
 )
 
@@ -9,7 +8,7 @@ import (
 type CoprocessorStage string
 
 // CoprocessorBody represents the body structure
-type CoprocessorBody struct {
+type Body struct {
 	Query         string      `json:"query,omitempty"`
 	OperationName string      `json:"operationName,omitempty"`
 	Variables     interface{} `json:"variables,omitempty"`
@@ -35,13 +34,13 @@ type CoprocessorContext struct {
 	Entries map[string]interface{} `json:"entries"` // Context entries as a map
 }
 
-type CoprocessorPayload struct {
+type CommonProperties struct {
 	Version     int                `json:"version,omitempty"`
 	Stage       CoprocessorStage   `json:"stage,omitempty"`
 	Control     any                `json:"control,omitempty"`
 	ID          string             `json:"id,omitempty"`
 	Headers     http.Header        `json:"headers,omitempty"`
-	Body        CoprocessorBody    `json:"body,omitempty"`
+	Body        interface{}        `json:"body,omitempty"`
 	Context     CoprocessorContext `json:"context,omitempty"`
 	SDL         string             `json:"sdl,omitempty"`
 	Method      string             `json:"method,omitempty"`
@@ -50,17 +49,12 @@ type CoprocessorPayload struct {
 	URI         string             `json:"uri,omitempty"`         //SubgraphRequest Stage
 }
 
-type RouterResponsePayload struct {
-	Version     int              `json:"version,omitempty"`
-	Stage       CoprocessorStage `json:"stage,omitempty"`
-	Control     any              `json:"control,omitempty"`
-	ID          string           `json:"id,omitempty"`
-	Headers     http.Header      `json:"headers,omitempty"`
-	Body        json.RawMessage  `json:"body,omitempty"`
-	Context     json.RawMessage  `json:"context,omitempty"`
-	SDL         string           `json:"sdl,omitempty"`
-	Method      string           `json:"method,omitempty"`
-	Path        string           `json:"path,omitempty"`        // The RouterService or SupergraphService path that this coprocessor request pertains to.
-	ServiceName string           `json:"serviceName,omitempty"` //SubgraphRequest Stage
-	URI         string           `json:"uri,omitempty"`         //SubgraphRequest Stage
+type PolicyMap struct {
+	Typename string
+	Fields   map[string]FieldPolicy
+}
+
+type FieldPolicy struct {
+	EngineResponse        map[string]string `json:"engineResponse"`
+	EntitlementIdentifier string            `json:"entitlementIdentifier"`
 }
