@@ -8,6 +8,7 @@ import (
 	"context"
 	"io"
 
+	"github.com/99designs/gqlgen/graphql/handler/apollofederatedtracingv1/logger"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -50,20 +51,20 @@ func StartSchemaUpdater() {
 		for range ticker.C {
 			newSchema, err := DownloadSchemaAsString()
 			if err != nil {
-				fmt.Println("Error updating schema:", err)
+				logger.Error(err, "Error updating schema:")
 				continue
 			}
 			oldHash := HashSHA256(schema)
 			newHash := HashSHA256(newSchema)
 			if oldHash == newHash {
-				fmt.Println("Schema has not changed.")
+				logger.Info("Schema has not changed.")
 				schemaChanged = false
 				continue
 			} else {
-				fmt.Println("Schema has changed.")
+				logger.Info("Schema has changed.")
 				schema = newSchema
 				schemaChanged = true
-				fmt.Println("Schema updated at", time.Now())
+				logger.Info("Schema updated at:", time.Now())
 			}
 		}
 	}()

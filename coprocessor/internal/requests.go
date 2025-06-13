@@ -103,7 +103,7 @@ func NewRequest(r *http.Request) (*[]byte, string, error) {
 
 	err = json.Unmarshal(httpRequestBody, &cr)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err, "Failed to unmarshal request body")
 		return nil, "", err
 	}
 

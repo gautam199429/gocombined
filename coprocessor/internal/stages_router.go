@@ -227,8 +227,7 @@ func handleRouterRequest(httpRequestBody *[]byte) (*RouterRequest, error) {
 	// This is the object sent by the Router that you can act upon to update headers, context, auth claims, etc
 	// If you update the "control" property from "Continue" to something like { "break": 400 }, it will terminate the request and return the specified HTTP error
 	// See: https://www.apollographql.com/docs/router/customizations/coprocessor/
-	fmt.Println(string(requestBody))
-
+	logger.Info("Coprocessor Request Details ===> ", string(requestBody))
 	return cr, nil
 }
 
@@ -245,7 +244,7 @@ func handleRouterResponse(httpRequestBody *[]byte) (*model.CommonProperties, err
 	}
 	var bodyString string
 
-	fmt.Println("Router Response String Body:", bodyString)
+	logger.Info("Router Response String Body:", bodyString)
 
 	parsedBody, error := utilities.ParseGraphQLQueryCopy(bodyString)
 	if error != nil {
@@ -261,9 +260,9 @@ func handleRouterResponse(httpRequestBody *[]byte) (*model.CommonProperties, err
 	}
 	cr.Body = encodedBody
 	// 3. Log the request details
-	fmt.Println("Coprocessor Request Details ===> ")
-	fmt.Println("Coprocessor Request Headers from Router - ", cr.Headers)
-	fmt.Println("Coprocessor Request Body - ", string(requestBody))
+	logger.Info("Coprocessor Request Details ===> ")
+	logger.Info("Coprocessor Request Headers from Router - ", cr.Headers)
+	logger.Info("Coprocessor Request Body - ", string(requestBody))
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling httpRequestBody: %w", err)
 	}
@@ -283,9 +282,9 @@ func handleSupergraphRequest(httpRequestBody *[]byte) (*model.CommonProperties, 
 	}
 
 	// 3. Log the request details
-	fmt.Println("Coprocessor Request Details ===> ")
-	fmt.Println("Coprocessor Request Headers from Router - ", cr.Headers)
-	fmt.Println("Coprocessor Request Body - ", string(requestBody))
+	logger.Info("Coprocessor Request Details ===> ")
+	logger.Info("Coprocessor Request Headers from Router - ", cr.Headers)
+	logger.Info("Coprocessor Request Body - ", string(requestBody))
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling httpRequestBody: %w", err)
 	}
@@ -307,7 +306,7 @@ func NewSuperGraph(httpRequestBody *[]byte) (*model.CommonProperties, error) {
 	var cr *model.CommonProperties
 	err = json.Unmarshal(*httpRequestBody, &cr)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err, "Failed to unmarshal request body")
 		return nil, err
 	}
 	return cr, nil
@@ -318,7 +317,7 @@ func NewRouterResponse(httpRequestBody *[]byte) (*model.CommonProperties, error)
 	var cr *model.CommonProperties
 	err = json.Unmarshal(*httpRequestBody, &cr)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err, "Failed to unmarshal request body")
 		return nil, err
 	}
 	return cr, nil

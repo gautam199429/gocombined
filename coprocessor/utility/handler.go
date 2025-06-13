@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+
+	"github.com/99designs/gqlgen/graphql/handler/apollofederatedtracingv1/logger"
 )
 
 type JSONMap map[string]any
@@ -97,7 +99,7 @@ func traverseAndRedactCopy(jsonMap map[string]interface{}, fieldMap map[string]s
 			}
 			if fieldsMap, exists := policyMap[normalizedType]; exists {
 				if engineResponse, fieldExists := fieldsMap[key]["engineresponse"].(map[string]string); fieldExists {
-					fmt.Println(reflect.TypeOf(value))
+					logger.Info("Field type:", reflect.TypeOf(value))
 					switch accounValue := value.(type) {
 					case []interface{}:
 						var filtered []interface{}
@@ -271,7 +273,7 @@ func GetApolloPoliciesRequiredHeders() ([]map[string]interface{}, error) {
 	`
 	var result map[string]interface{}
 	if err := json.Unmarshal([]byte(jsonData), &result); err != nil {
-		fmt.Println("Error unmarshalling JSON:", err)
+		logger.Error(err, "Error unmarshalling JSON")
 		return nil, err
 	}
 
