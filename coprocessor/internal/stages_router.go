@@ -237,35 +237,24 @@ func handleRouterResponse(httpRequestBody *[]byte) (*model.CommonProperties, err
 		return nil, fmt.Errorf("error unmarshaling httpRequestBody: %w", err)
 	}
 
-	// 2. Marshal the request to get the request body
-	requestBody, err := json.Marshal(cr)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling request body: %w", err)
-	}
-	var bodyString string
+	logger.Info("Coprocessor Request Body - ", string(*httpRequestBody))
 
+	bodyString := string(*httpRequestBody)
 	logger.Info("Router Response String Body:", bodyString)
 
-	parsedBody, error := utilities.ParseGraphQLQueryCopy(bodyString)
-	if error != nil {
-		return nil, fmt.Errorf("error marshaling modified response body: %w", err)
+	parsedBody, err := utilities.ParseGraphQLQueryCopy(bodyString)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing modified response body: %w", err)
 	}
+
 	marshaledParsedBody, err := json.Marshal(parsedBody)
 	if err != nil {
 		return nil, fmt.Errorf("error marshaling modified response body: %w", err)
 	}
-	encodedBody, err := json.Marshal(string(marshaledParsedBody))
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling modified response body: %w", err)
-	}
-	cr.Body = encodedBody
-	// 3. Log the request details
-	logger.Info("Coprocessor Request Details ===> ")
+	cr.Body = marshaledParsedBody
+
 	logger.Info("Coprocessor Request Headers from Router - ", cr.Headers)
-	logger.Info("Coprocessor Request Body - ", string(requestBody))
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshaling httpRequestBody: %w", err)
-	}
+
 	return cr, nil
 }
 
